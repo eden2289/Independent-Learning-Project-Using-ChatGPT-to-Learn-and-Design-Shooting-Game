@@ -25,7 +25,7 @@ SDL_Texture* LoadTexture(const std::string &filePath, SDL_Renderer* renderer) {
 
 int main(int argc, char* argv[]) {
     // 先初始化所有我們需要用到的SDL庫。
-    SDL_Init(SDL_INIT_VIDEO); // 啟動SDL的視頻部分。
+    SDL_Init(SDL_INIT_VIDEO); // 啟動SDL的影片部分。
     IMG_Init(IMG_INIT_PNG); // 讓SDL_image支持PNG格式的圖片。
     TTF_Init(); // 啟動SDL_ttf，這樣我們就可以在遊戲裡顯示文字了。
     
