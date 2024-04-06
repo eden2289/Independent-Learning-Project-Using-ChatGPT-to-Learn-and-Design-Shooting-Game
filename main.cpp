@@ -1,30 +1,30 @@
-#include <SDL.h> // "老大哥" SDL庫，讓我們可以製作遊戲的窗口和各種圖形。
-#include <SDL_ttf.h> // 用來在遊戲裡顯示文字的工具包。
+#include <SDL.h> // SDL庫，讓我們可以製作遊戲的窗口和各種圖形。
+#include <SDL_ttf.h> // 用來在遊戲裡顯示文字。
 #include <SDL_image.h> // 這個是用來加載和處理圖片的，讓我們的遊戲不只是文字那麼無聊。
-#include <stdlib.h> // 標準庫，有很多基本的功能，比如隨機數。
-#include <time.h> // 時間庫，可以用來搞定一些與時間有關的操作。
-#include <string> // 字符串庫，用來處理一堆字。
+#include <stdlib.h> // 有很多基本的功能，比如隨機數。
+#include <time.h> // 時間函式庫，可以用來搞定一些與時間有關的。
+#include <string> // 字符串函式庫，用來處理字。
 
-// 下面這個函數是用來加載圖片的，讓圖片能在遊戲裡面顯示出來。
+// 下面這個函數是用來載入圖片的，讓圖片能在遊戲裡面顯示出來。
 SDL_Texture* LoadTexture(const std::string &filePath, SDL_Renderer* renderer) {
-    SDL_Surface* tempSurface = IMG_Load(filePath.c_str()); // 先用IMG_Load把圖片搞成一個表面（surface）。
-    if (!tempSurface) { // 如果沒能加載圖片，就報錯。
+    SDL_Surface* tempSurface = IMG_Load(filePath.c_str()); // 先用IMG_Load把圖片做成一個畫面（surface）。
+    if (!tempSurface) { // 偵測能不能載入圖片。
         SDL_Log("Unable to load image %s! SDL_image Error: %s\n", filePath.c_str(), IMG_GetError());
         return nullptr;
     }
 
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, tempSurface); // 把表面轉換成紋理（texture），這樣才能在遊戲裡用。
-    SDL_FreeSurface(tempSurface); // 把剛才那個表面刪了，因為我們已經不需要它了。
+    SDL_FreeSurface(tempSurface); // 把剛才那個表面刪了，已經不需要它了。
 
-    if (!texture) { // 如果紋理沒有成功創建，也報錯。
+    if (!texture) { // 偵測圖片紋理沒有創建成功。
         SDL_Log("Unable to create texture from %s! SDL Error: %s\n", filePath.c_str(), SDL_GetError());
     }
 
-    return texture; // 把紋理返回，這樣其他地方就能用這個紋理了。
+    return texture; // 有點像把紋理儲存，這樣其他地方就能用這個紋理了。
 }
 
 int main(int argc, char* argv[]) {
-    // 先初始化所有我們需要用到的SDL庫。
+    // 先初始化所有我們需要用到的SDL函式庫。
     SDL_Init(SDL_INIT_VIDEO); // 啟動SDL的影片部分。
     IMG_Init(IMG_INIT_PNG); // 讓SDL_image支持PNG格式的圖片。
     TTF_Init(); // 啟動SDL_ttf，這樣我們就可以在遊戲裡顯示文字了。
@@ -32,18 +32,18 @@ int main(int argc, char* argv[]) {
     // 打開一個字體文件，並設定字體的大小。
     TTF_Font* font = TTF_OpenFont("/Users/linyili/Desktop/game/FZSJ-BHTJW.TTF", 40); // 這裡假設字體檔案在你電腦上的某個位置。
 
-    // 下面一堆變數，主要用來記錄遊戲進行的時間。
+    // 設定變數，主要用來記錄遊戲進行的時間。
     Uint32 startTime = 0; // 遊戲開始的時間。
     Uint32 currentTime = 0; // 現在的時間。
 
     // 設定文字的顏色，這裡用的是白色。
     SDL_Color textColor = {255, 255, 255, 255};
 
-    // 定義遊戲窗口的大小。
+    // 定義遊戲視窗的大小。
     int windowWidth = 600;
     int windowHeight = 800;
 
-    // 創建遊戲窗口和渲染器。窗口是玩家看到遊戲畫面的地方，渲染器則是用來把圖形畫到窗口上。
+    // 創建遊戲視窗和渲染。視窗是玩家看到遊戲畫面的地方，渲染則是可以把圖形畫到視窗上。
     SDL_Window* window = SDL_CreateWindow("My Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowWidth, windowHeight, SDL_WINDOW_SHOWN);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE);
 
@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
     SDL_Texture* bulletTexture = LoadTexture("/Users/linyili/Desktop/game/magic.png", renderer); // 子彈的圖片
     SDL_Texture* mainMenuBackground = LoadTexture("/Users/linyili/Desktop/game/mainBackground.png", renderer); // 主菜單的背景圖
 
-    // 定義玩家的一些屬性，比如位置和大小。
+    // 定義玩家的一些基礎屬性，比如位置和大小。
     int playerX = 270; // 玩家的水平位置
     int playerY = 640; // 玩家的垂直位置
     int playerWidth = 100; // 玩家的寬度
@@ -67,21 +67,21 @@ int main(int argc, char* argv[]) {
     int playerLives = 5; // 玩家有5條命
     int score = 0; // 初始得分是0
 
-    // 玩家的矩形，SDL用矩形來表示遊戲中的物體。
+    // 玩家，先用矩形來表示遊戲中的物體，等等碰撞就檢測這個矩形就好。
     SDL_Rect playerRect = { playerX, playerY, playerWidth, playerHeight };
 
-    // 定義敵人的數量和屬性。
+    // 定義敵人的數量和基礎屬性。
     const int NUM_ENEMIES = 6; // 敵人的數量
-    SDL_Rect enemyRects[NUM_ENEMIES]; // 存儲敵人矩形的數組
+    SDL_Rect enemyRects[NUM_ENEMIES]; // 儲存敵人矩形的數組
     int enemyWidth = 50; // 敵人的寬度
     int enemyHeight = 50; // 敵人的高度
     int enemySpeedX[NUM_ENEMIES]; // 敵人在水平方向上的速度
     int enemySpeedY[NUM_ENEMIES]; // 敵人在垂直方向上的速度
 
-    // 這裡有一些關於特殊敵人和回血道具的設置。
-    bool isSpecialEnemy[NUM_ENEMIES] = {false}; // 每個敵人是否是特殊敵人的標記
+    //設置特殊敵人和回血道具。
+    bool isSpecialEnemy[NUM_ENEMIES] = {false}; // 每個敵人是否是特殊敵人
     SDL_Rect healthPowerUps[NUM_ENEMIES]; // 回血道具的矩形
-    bool healthPowerUpActive[NUM_ENEMIES] = {false}; // 每個回血道具是否激活的標記
+    bool healthPowerUpActive[NUM_ENEMIES] = {false}; // 每個回血道具是否啟動的標記
     int healthPowerUpWidth = 20; // 回血道具的寬度
     int healthPowerUpHeight = 20; // 回血道具的高度
     const int SPECIAL_ENEMY_CHANCE = 8; // 特殊敵人出現的機率
@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
     int bulletHeight = 40; // 子彈的高度
     int bulletSpeedY = -10; // 子彈在垂直方向上的速度
 
-    // 初始化子彈矩形數組。這裡的子彈都是“未激活”的，意味著它們不會在遊戲畫面上出現。
+    // 初始化子彈矩形數組。這裡的子彈都是“未啟動”的，意味著它們不會在遊戲畫面上出現。
     for (int i = 0; i < NUM_BULLETS; i++) {
         bulletRects[i].x= -1; // 子彈的初始位置在畫面之外
         bulletRects[i].y= -1;
@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
     bool quit = false;
     SDL_Event event; // SDL_Event用來處理各種事件，比如鍵盤按鍵、鼠標點擊等。
 
-    // 主菜單循環。這個循環負責顯示遊戲的主菜單，等待玩家做出選擇。
+    // 主菜單畫面循環。這個循環負責顯示遊戲的主菜單，等待玩家做出選擇。
     bool showMainMenu = true;
     while (showMainMenu) {
         SDL_Event event;
@@ -273,7 +273,7 @@ int main(int argc, char* argv[]) {
         // 清除渲染器上的所有內容，準備繪製新的一幀
         SDL_RenderClear(renderer);
 
-        // 使用背景紋理填充屏幕
+        // 使用背景紋理填充畫面
         SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
         
 
